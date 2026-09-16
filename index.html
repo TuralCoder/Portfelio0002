@@ -2,21 +2,78 @@
 <html lang="az">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Tural Daşdəmirov — Proqramçı və İT tərəfdaşı</title>
+    <meta
+      name="description"
+      content="Tural Daşdəmirov — Proqramçı və İT tərəfdaşı. Veb saytlar, AI layihələri, biznes proqramları və Excel təlimi. Bakı, Azərbaycan."
+    />
+    <meta name="author" content="Tural Daşdəmirov" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#f6f7f1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="application-name" content="Tural Daşdəmirov" />
+    <meta name="apple-mobile-web-app-title" content="Tural Daşdəmirov" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Tural Daşdəmirov — Proqramçı və İT tərəfdaşı. Veb saytlar, AI layihələri, biznes proqramları və Excel təlimi. Bakı, Azərbaycan." />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:title" content="Tural Daşdəmirov — Proqramçı və İT tərəfdaşı" />
-    <meta property="og:description" content="Veb saytlar, AI dəstəkli layihələr, biznes proqramları və Excel təlimi." />
+    <meta
+      property="og:description"
+      content="Veb saytlar, AI dəstəkli layihələr, biznes proqramları və Excel təlimi. Bakı, Azərbaycan."
+    />
     <meta property="og:locale" content="az_AZ" />
     <meta property="og:type" content="website" />
-    <title>Tural Daşdəmirov — Proqramçı və İT tərəfdaşı</title>
+    <meta property="og:site_name" content="Tural Daşdəmirov" />
+    <meta property="og:image" content="/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tural Daşdəmirov — Proqramçı və İT tərəfdaşı" />
+    <meta
+      name="twitter:description"
+      content="Veb saytlar, AI dəstəkli layihələr, biznes proqramları və Excel təlimi."
+    />
+    <meta name="twitter:image" content="/og-image.png" />
     <script>
       (function () {
         try {
           var t = localStorage.getItem('portfelio-theme');
-          if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+          if (t !== 'dark' && t !== 'light') {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-theme', t);
+          document.documentElement.style.colorScheme = t;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', t === 'dark' ? '#0b0d0b' : '#f6f7f1');
         } catch (e) {}
       })();
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Tural Daşdəmirov",
+        "jobTitle": "Proqramçı və İT tərəfdaşı",
+        "email": "mailto:tural@asanexcel.com",
+        "telephone": "+994558147797",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Bakı",
+          "addressCountry": "AZ"
+        },
+        "knowsAbout": [
+          "Veb saytlar",
+          "AI layihələri",
+          "ERP",
+          "Excel təlimi",
+          "İT dəstəyi"
+        ]
+      }
     </script>
   </head>
   <body>

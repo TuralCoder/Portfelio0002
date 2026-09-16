@@ -6,6 +6,7 @@ export const site = {
   email: 'tural@asanexcel.com',
   phone: '+994 55 814 77 97',
   phoneRaw: '994558147797',
+  telUrl: 'tel:+994558147797',
   whatsappUrl: 'https://wa.me/994558147797',
   mailtoUrl: 'mailto:tural@asanexcel.com',
   monogram: 'td.',
@@ -23,6 +24,7 @@ export const hero = {
     'Mən Tural. Veb saytlar, AI dəstəkli layihələr və biznes proqramları hazırlayıram. Texnologiyanı işiniz üçün daha faydalı edirəm.',
   ctaPrimary: { label: 'Layihəni danışaq', href: '#elaqe' },
   ctaSecondary: { label: 'Xidmətlərə bax', href: '#xidmetler' },
+  availability: 'Layihələr üçün açığam',
 } as const;
 
 function whatsAppLink(message: string): string {

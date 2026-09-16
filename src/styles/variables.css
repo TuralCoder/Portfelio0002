@@ -9,17 +9,19 @@
   --color-text-secondary: #454b43;
   --color-surface: rgba(255, 255, 255, 0.72);
   --color-border: rgba(12, 14, 12, 0.16);
-  --color-header-bg: rgba(246, 247, 241, 0.94);
+  --color-header-bg: rgba(246, 247, 241, 0.97);
   --color-overlay-bg: rgba(246, 247, 241, 0.98);
   --color-canvas-bg: #f6f7f1;
   --color-canvas-bg-rgb: 246, 247, 241;
   --color-accent-rgb: 63, 122, 14;
   --color-line-rgb: 12, 14, 12;
   --color-btn-primary-text: #0c0e0c;
+  --color-btn-primary-hover: #d4f584;
   --color-tag-bg: rgba(12, 14, 12, 0.07);
   --color-status-bg: rgba(63, 122, 14, 0.14);
 
-  --font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-display: 'Syne', 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'Cascadia Code', 'Consolas', monospace;
 
   --text-base: 1rem;
@@ -67,13 +69,14 @@
   --color-text-secondary: #b6bcae;
   --color-surface: rgba(20, 23, 20, 0.7);
   --color-border: rgba(244, 245, 238, 0.14);
-  --color-header-bg: rgba(11, 13, 11, 0.9);
+  --color-header-bg: rgba(11, 13, 11, 0.96);
   --color-overlay-bg: rgba(11, 13, 11, 0.98);
   --color-canvas-bg: #0b0d0b;
   --color-canvas-bg-rgb: 11, 13, 11;
   --color-accent-rgb: 201, 240, 126;
   --color-line-rgb: 244, 245, 238;
   --color-btn-primary-text: #0b0d0b;
+  --color-btn-primary-hover: #d8f5a0;
   --color-tag-bg: rgba(244, 245, 238, 0.08);
   --color-status-bg: rgba(201, 240, 126, 0.14);
 
