@@ -1,4 +1,4 @@
-import { Mail, MessageCircle, MapPin } from 'lucide-react';
+import { Mail, MessageCircle, MapPin, Phone } from 'lucide-react';
 import { Section } from './Section';
 import { contact, site } from '../content/siteContent';
 
@@ -31,9 +31,13 @@ export function Contact() {
             <a href={site.mailtoUrl}>{site.email}</a>
           </li>
           <li>
+            <Phone size={16} aria-hidden="true" />
+            <a href={site.telUrl}>{site.phone}</a>
+          </li>
+          <li>
             <MessageCircle size={16} aria-hidden="true" />
             <a href={site.whatsappUrl} target="_blank" rel="noopener noreferrer">
-              {site.phone}
+              WhatsApp
             </a>
           </li>
           <li>

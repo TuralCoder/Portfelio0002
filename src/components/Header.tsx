@@ -9,6 +9,7 @@ export function Header() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -22,12 +23,19 @@ export function Header() {
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
-  const handleNavClick = () => closeMenu();
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeMenu();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menuOpen, closeMenu]);
 
   return (
     <header className={`header ${scrolled ? 'header--scrolled' : ''}`}>
       <div className="header__inner">
-        <a href="#" className="header__brand" aria-label={`${site.name} — ana səhifə`}>
+        <a href="#giris" className="header__brand" aria-label={`${site.name} — ana səhifə`}>
           <span className="header__monogram" aria-hidden="true">
             {site.monogram}
           </span>
@@ -49,14 +57,14 @@ export function Header() {
         <div className="header__actions">
           <ThemeToggle />
           <button
-          type="button"
-          className="header__menu-btn"
-          onClick={() => setMenuOpen((o) => !o)}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-menu"
-          aria-label={menuOpen ? 'Menyunu bağla' : 'Menyunu aç'}
-        >
-          {menuOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
+            type="button"
+            className="header__menu-btn"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            aria-label={menuOpen ? 'Menyunu bağla' : 'Menyunu aç'}
+          >
+            {menuOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
           </button>
         </div>
       </div>
@@ -65,12 +73,13 @@ export function Header() {
         id="mobile-menu"
         className={`header__mobile ${menuOpen ? 'header__mobile--open' : ''}`}
         aria-label="Mobil naviqasiya"
-        hidden={!menuOpen}
+        aria-hidden={!menuOpen}
+        inert={!menuOpen}
       >
         <ul className="header__mobile-list">
           {navItems.map((item) => (
             <li key={item.href}>
-              <a href={item.href} className="header__mobile-link" onClick={handleNavClick}>
+              <a href={item.href} className="header__mobile-link" onClick={closeMenu}>
                 {item.label}
               </a>
             </li>

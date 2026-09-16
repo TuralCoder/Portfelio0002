@@ -1,32 +1,43 @@
-# React + TypeScript + Vite
+# Tural Daşdəmirov — personal portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Azerbaijani-language portfolio for **Tural Daşdəmirov** (proqramçı və İT tərəfdaşı, Bakı). Built with React, TypeScript, and Vite. Copy and contact details live in `src/content/siteContent.ts`.
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Open the URL Vite prints (usually `http://localhost:5173`).
+
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Type-check and build static files into `dist/` |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` | Run Oxlint |
+
+## Deploy
+
+`npm run build` emits a static site in `dist/`. Upload that folder to any static host:
+
+- [Cloudflare Pages](https://pages.cloudflare.com/), [Netlify](https://www.netlify.com/), or [Vercel](https://vercel.com/): build command `npm run build`, publish directory `dist`
+- GitHub Pages: build, then publish `dist` (or use the GitHub Pages action)
+
+After you have a public URL, set absolute `og:image` / `twitter:image` URLs in `index.html` (social crawlers often ignore relative image paths).
+
+## Customize
+
+- **Text, services, WhatsApp, email, phone:** `src/content/siteContent.ts`
+- **SEO title, description, JSON-LD:** `index.html`
+- **Colors / type:** `src/styles/variables.css`
+- **3D background:** `src/components/BackgroundCanvas.tsx`
+
+The tunnel animation starts on load. It stays paused when the visitor has `prefers-reduced-motion: reduce`. Anyone can still play or pause it with the control in the bottom-right corner.
+
+## Browser support
+
+Modern evergreen browsers. The background uses Canvas 2D (no WebGL). Hidden tabs and phones use a lower frame rate so the page stays responsive.

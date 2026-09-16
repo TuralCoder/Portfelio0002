@@ -6,6 +6,7 @@ export const site = {
   email: 'tural@asanexcel.com',
   phone: '+994 55 814 77 97',
   phoneRaw: '994558147797',
+  telUrl: 'tel:+994558147797',
   whatsappUrl: 'https://wa.me/994558147797',
   mailtoUrl: 'mailto:tural@asanexcel.com',
   monogram: 'td.',
