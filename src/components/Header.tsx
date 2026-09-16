@@ -55,6 +55,9 @@ export function Header() {
         </nav>
 
         <div className="header__actions">
+          <a href="#elaqe" className="btn btn--primary header__cta">
+            Əlaqə
+          </a>
           <ThemeToggle />
           <button
             type="button"

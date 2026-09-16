@@ -40,21 +40,33 @@ interface Palette {
   bgRgb: string;
   accentRgb: string;
   lineRgb: string;
+  isDark: boolean;
 }
 
-const NEAR = 0.12;
-const FAR = 7.5;
-const FOCAL = 1.05;
-const RING_RADIUS = 2.05;
+interface Point {
+  sx: number;
+  sy: number;
+}
+
+const NEAR = 0.14;
+const FAR = 8;
+const FOCAL = 1.12;
+const RING_RX = 2.15;
+const RING_RY = 1.22;
 
 function readPalette(): Palette {
   const s = getComputedStyle(document.documentElement);
   const get = (name: string, fallback: string) => s.getPropertyValue(name).trim() || fallback;
+  const bgRgb = get('--color-canvas-bg-rgb', '246, 247, 241');
+  const parts = bgRgb.split(',').map((n) => Number.parseFloat(n.trim()));
+  const [r, g, b] = parts.length === 3 ? parts : [246, 247, 241];
+  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
   return {
     bg: get('--color-canvas-bg', '#f6f7f1'),
-    bgRgb: get('--color-canvas-bg-rgb', '246, 247, 241'),
+    bgRgb,
     accentRgb: get('--color-accent-rgb', '63, 122, 14'),
     lineRgb: get('--color-line-rgb', '12, 14, 12'),
+    isDark: lum < 0.45,
   };
 }
 
@@ -98,53 +110,53 @@ export function BackgroundCanvas({ paused, onTogglePause }: BackgroundCanvasProp
 
     const spawnStar = (s: Star, fresh: boolean) => {
       const angle = Math.random() * Math.PI * 2;
-      const radius = Math.sqrt(Math.random()) * 1.85 + 0.2;
+      const radius = Math.sqrt(Math.random()) * 1.95 + 0.18;
       s.x = Math.cos(angle) * radius;
-      s.y = Math.sin(angle) * radius * 0.62;
+      s.y = Math.sin(angle) * radius * 0.58;
       s.z = fresh ? rand(NEAR, FAR) : FAR;
-      s.speed = rand(0.45, 1.15);
-      s.size = rand(0.55, 1.9);
+      s.speed = rand(0.55, 1.35);
+      s.size = rand(0.5, 1.85);
     };
 
     const spawnStreak = (k: Streak) => {
       const angle = Math.random() * Math.PI * 2;
-      const radius = rand(0.45, 1.7);
+      const radius = rand(0.4, 1.75);
       k.x = Math.cos(angle) * radius;
-      k.y = Math.sin(angle) * radius * 0.62;
+      k.y = Math.sin(angle) * radius * 0.58;
       k.z = FAR;
-      k.length = rand(0.85, 2.2);
-      k.speed = rand(2.4, 4.2);
+      k.length = rand(1.0, 2.6);
+      k.speed = rand(2.8, 4.8);
       k.life = 1;
     };
 
     const spawnShard = (d: Shard, fresh: boolean) => {
       const angle = Math.random() * Math.PI * 2;
-      const radius = rand(0.7, 1.9);
+      const radius = rand(0.75, 1.95);
       d.x = Math.cos(angle) * radius;
-      d.y = Math.sin(angle) * radius * 0.55;
-      d.z = fresh ? rand(NEAR + 0.8, FAR) : FAR;
-      d.vx = rand(-0.08, 0.08);
-      d.vy = rand(-0.06, 0.06);
-      d.speed = rand(0.55, 1.05);
-      d.size = rand(0.08, 0.18);
+      d.y = Math.sin(angle) * radius * 0.52;
+      d.z = fresh ? rand(NEAR + 0.7, FAR) : FAR;
+      d.vx = rand(-0.06, 0.06);
+      d.vy = rand(-0.05, 0.05);
+      d.speed = rand(0.6, 1.15);
+      d.size = rand(0.09, 0.2);
       d.spin = rand(0, Math.PI * 2);
-      d.spinSpeed = rand(-1.2, 1.2);
+      d.spinSpeed = rand(-1.4, 1.4);
     };
 
     const buildScene = () => {
-      const starCount = isMobile ? 80 : 210;
+      const starCount = isMobile ? 90 : 240;
       stars = Array.from({ length: starCount }, () => {
         const s: Star = { x: 0, y: 0, z: 0, speed: 0, size: 0 };
         spawnStar(s, true);
         return s;
       });
-      streaks = Array.from({ length: isMobile ? 4 : 9 }, () => {
+      streaks = Array.from({ length: isMobile ? 5 : 11 }, () => {
         const k: Streak = { x: 0, y: 0, z: 0, length: 0, speed: 0, life: 0 };
         spawnStreak(k);
         k.z = rand(NEAR, FAR);
         return k;
       });
-      shards = Array.from({ length: isMobile ? 4 : 10 }, () => {
+      shards = Array.from({ length: isMobile ? 5 : 12 }, () => {
         const d: Shard = {
           x: 0,
           y: 0,
@@ -167,9 +179,34 @@ export function BackgroundCanvas({ paused, onTogglePause }: BackgroundCanvasProp
       const s = Math.sin(rot);
       const rx = x * c - y * s;
       const ry = x * s + y * c;
-      const depth = Math.max(z, 0.04);
+      const depth = Math.max(z, 0.05);
       const k = f / depth;
-      return { sx: cx + rx * k, sy: cy + ry * k, k };
+      return { sx: cx + rx * k, sy: cy + ry * k };
+    };
+
+    const ringPoints = (
+      z: number,
+      twist: number,
+      cx: number,
+      cy: number,
+      f: number,
+      rot: number,
+      sides: number,
+    ): Point[] => {
+      const pts: Point[] = [];
+      for (let s = 0; s < sides; s++) {
+        const a = (s / sides) * Math.PI * 2 + twist;
+        pts.push(project(Math.cos(a) * RING_RX, Math.sin(a) * RING_RY, z, cx, cy, f, rot));
+      }
+      return pts;
+    };
+
+    const strokeLoop = (pts: Point[]) => {
+      ctx.beginPath();
+      ctx.moveTo(pts[0].sx, pts[0].sy);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].sx, pts[i].sy);
+      ctx.closePath();
+      ctx.stroke();
     };
 
     const drawShard = (
@@ -180,17 +217,18 @@ export function BackgroundCanvas({ paused, onTogglePause }: BackgroundCanvasProp
       rot: number,
       accentRgb: string,
       lineRgb: string,
+      isDark: boolean,
     ) => {
       const depth = 1 - (d.z - NEAR) / (FAR - NEAR);
-      const alpha = 0.08 + depth * 0.32;
+      const alpha = (isDark ? 0.12 : 0.16) + depth * 0.4;
       const h = d.size;
-      const cos = Math.cos(d.spin + rot * 0.4);
-      const sin = Math.sin(d.spin + rot * 0.4);
+      const cos = Math.cos(d.spin + rot * 0.45);
+      const sin = Math.sin(d.spin + rot * 0.45);
       const verts = [
         [h, 0, 0],
-        [-h * 0.5, h * 0.7, 0],
-        [-h * 0.5, -h * 0.7, 0],
-        [0, 0, h * 0.9],
+        [-h * 0.5, h * 0.72, 0],
+        [-h * 0.5, -h * 0.72, 0],
+        [0, 0, h],
       ].map(([x, y, z]) => {
         const rx = x * cos - z * sin;
         const rz = x * sin + z * cos;
@@ -202,8 +240,10 @@ export function BackgroundCanvas({ paused, onTogglePause }: BackgroundCanvasProp
       ctx.lineTo(verts[1].sx, verts[1].sy);
       ctx.lineTo(verts[2].sx, verts[2].sy);
       ctx.closePath();
+      ctx.fillStyle = `rgba(${accentRgb}, ${alpha * 0.12})`;
+      ctx.fill();
       ctx.strokeStyle = `rgba(${accentRgb}, ${alpha})`;
-      ctx.lineWidth = 1 + depth * 0.8;
+      ctx.lineWidth = 1 + depth * 0.9;
       ctx.stroke();
 
       ctx.beginPath();
@@ -212,7 +252,7 @@ export function BackgroundCanvas({ paused, onTogglePause }: BackgroundCanvasProp
       ctx.lineTo(verts[1].sx, verts[1].sy);
       ctx.moveTo(verts[3].sx, verts[3].sy);
       ctx.lineTo(verts[2].sx, verts[2].sy);
-      ctx.strokeStyle = `rgba(${lineRgb}, ${alpha * 0.7})`;
+      ctx.strokeStyle = `rgba(${lineRgb}, ${alpha * 0.65})`;
       ctx.stroke();
     };
 
@@ -228,89 +268,100 @@ export function BackgroundCanvas({ paused, onTogglePause }: BackgroundCanvasProp
         pointer.y += (pointer.ty - pointer.y) * 0.05;
       }
 
-      const { bg, bgRgb, accentRgb, lineRgb } = palette;
+      const { bg, bgRgb, accentRgb, lineRgb, isDark } = palette;
       const f = Math.min(width, height) * FOCAL;
+      const sides = isMobile ? 28 : 40;
 
-      const swayX = frozen ? 0 : Math.sin(time * 0.22) * 0.045;
-      const swayY = frozen ? 0 : Math.cos(time * 0.17) * 0.03;
-      const baseCx = isMobile ? width * 0.52 : width * 0.66;
-      const baseCy = isMobile ? height * 0.42 : height * 0.47;
-      const cx = baseCx + (pointer.x + swayX) * width * 0.055;
-      const cy = baseCy + (pointer.y + swayY) * height * 0.05 + scrollNorm * height * 0.07;
-      const rot = pointer.x * 0.1 + scrollNorm * 0.55 + (frozen ? 0 : time * 0.06);
+      const swayX = frozen ? 0 : Math.sin(time * 0.23) * 0.05;
+      const swayY = frozen ? 0 : Math.cos(time * 0.18) * 0.032;
+      const baseCx = isMobile ? width * 0.5 : width * 0.68;
+      const baseCy = isMobile ? height * 0.4 : height * 0.48;
+      const cx = baseCx + (pointer.x + swayX) * width * 0.05;
+      const cy = baseCy + (pointer.y + swayY) * height * 0.045 + scrollNorm * height * 0.06;
+      const rot = pointer.x * 0.09 + scrollNorm * 0.48 + (frozen ? 0 : time * 0.07);
 
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, width, height);
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
 
-      const ringCount = isMobile ? 7 : 12;
+      const ringCount = isMobile ? 8 : 14;
       const ringSpacing = (FAR - NEAR) / ringCount;
-      const ringOffset = frozen ? 0 : (time * 0.85) % ringSpacing;
+      const ringOffset = frozen ? 0 : (time * 1.05) % ringSpacing;
+      const rings: { z: number; depth: number; pts: Point[] }[] = [];
 
-      for (let i = ringCount - 1; i >= 0; i--) {
+      for (let i = 0; i < ringCount; i++) {
         let z = NEAR + i * ringSpacing + (ringSpacing - ringOffset);
         if (z > FAR) z -= FAR - NEAR;
         const depth = 1 - (z - NEAR) / (FAR - NEAR);
-        const alpha = 0.05 + depth * 0.26;
-        const sides = 10;
-        ctx.beginPath();
-        for (let s = 0; s <= sides; s++) {
-          const a = (s / sides) * Math.PI * 2 + i * 0.08;
-          const p = project(
-            Math.cos(a) * RING_RADIUS,
-            Math.sin(a) * RING_RADIUS * 0.62,
-            z,
-            cx,
-            cy,
-            f,
-            rot,
-          );
-          if (s === 0) ctx.moveTo(p.sx, p.sy);
-          else ctx.lineTo(p.sx, p.sy);
+        rings.push({
+          z,
+          depth,
+          pts: ringPoints(z, i * 0.045 + rot * 0.15, cx, cy, f, rot, sides),
+        });
+      }
+      rings.sort((a, b) => b.z - a.z);
+
+      if (!isMobile) {
+        for (let i = 0; i < rings.length - 1; i++) {
+          const a = rings[i];
+          const b = rings[i + 1];
+          const step = 2;
+          for (let s = 0; s < sides; s += step) {
+            const a0 = a.pts[s];
+            const a1 = a.pts[(s + step) % sides];
+            const b1 = b.pts[(s + step) % sides];
+            const b0 = b.pts[s];
+            const wall = (isDark ? 0.035 : 0.045) * ((a.depth + b.depth) * 0.5);
+            ctx.beginPath();
+            ctx.moveTo(a0.sx, a0.sy);
+            ctx.lineTo(a1.sx, a1.sy);
+            ctx.lineTo(b1.sx, b1.sy);
+            ctx.lineTo(b0.sx, b0.sy);
+            ctx.closePath();
+            ctx.fillStyle = `rgba(${accentRgb}, ${wall})`;
+            ctx.fill();
+          }
         }
-        ctx.strokeStyle = `rgba(${accentRgb}, ${alpha})`;
-        ctx.lineWidth = 1 + depth * 1.4;
-        ctx.stroke();
       }
 
-      ctx.lineWidth = 1;
-      for (let s = 0; s < 10; s++) {
-        const a = (s / 10) * Math.PI * 2;
-        const p0 = project(
-          Math.cos(a) * RING_RADIUS,
-          Math.sin(a) * RING_RADIUS * 0.62,
-          NEAR,
-          cx,
-          cy,
-          f,
-          rot,
-        );
-        const p1 = project(
-          Math.cos(a) * RING_RADIUS,
-          Math.sin(a) * RING_RADIUS * 0.62,
-          FAR,
-          cx,
-          cy,
-          f,
-          rot,
-        );
+      const ribRgb = isDark ? lineRgb : lineRgb;
+      for (let s = 0; s < 12; s++) {
+        const a = (s / 12) * Math.PI * 2;
+        const p0 = project(Math.cos(a) * RING_RX, Math.sin(a) * RING_RY, NEAR, cx, cy, f, rot);
+        const p1 = project(Math.cos(a) * RING_RX, Math.sin(a) * RING_RY, FAR, cx, cy, f, rot);
         const grad = ctx.createLinearGradient(p0.sx, p0.sy, p1.sx, p1.sy);
-        grad.addColorStop(0, `rgba(${lineRgb}, 0)`);
-        grad.addColorStop(0.35, `rgba(${lineRgb}, 0.14)`);
-        grad.addColorStop(1, `rgba(${lineRgb}, 0)`);
+        grad.addColorStop(0, `rgba(${ribRgb}, 0)`);
+        grad.addColorStop(0.28, `rgba(${ribRgb}, ${isDark ? 0.2 : 0.22})`);
+        grad.addColorStop(1, `rgba(${ribRgb}, 0)`);
         ctx.beginPath();
         ctx.moveTo(p0.sx, p0.sy);
         ctx.lineTo(p1.sx, p1.sy);
         ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.15;
         ctx.stroke();
       }
 
+      for (const ring of rings) {
+        const alpha = (isDark ? 0.1 : 0.14) + ring.depth * (isDark ? 0.42 : 0.36);
+        ctx.lineWidth = 1.05 + ring.depth * 1.85;
+        ctx.strokeStyle = `rgba(${isDark ? accentRgb : lineRgb}, ${alpha})`;
+        strokeLoop(ring.pts);
+        if (ring.depth > 0.35) {
+          ctx.lineWidth = 0.7;
+          ctx.strokeStyle = `rgba(${accentRgb}, ${alpha * (isDark ? 0.55 : 0.4)})`;
+          strokeLoop(ring.pts);
+        }
+      }
+
       if (!isMobile) {
-        const floorY = 1.28;
-        const gridSpan = 3.4;
-        const gridStep = 0.38;
-        const gridShift = frozen ? 0 : (time * 0.85) % gridStep;
-        ctx.strokeStyle = `rgba(${lineRgb}, 0.065)`;
-        for (let gz = NEAR + 0.35; gz < FAR; gz += gridStep) {
+        const floorY = RING_RY + 0.08;
+        const gridSpan = 3.5;
+        const gridStep = 0.36;
+        const gridShift = frozen ? 0 : (time * 1.05) % gridStep;
+        ctx.strokeStyle = `rgba(${lineRgb}, ${isDark ? 0.08 : 0.09})`;
+        ctx.lineWidth = 1;
+        for (let gz = NEAR + 0.3; gz < FAR; gz += gridStep) {
           const z = gz + gridStep - gridShift;
           if (z >= FAR) continue;
           const a = project(-gridSpan, floorY, z, cx, cy, f, rot);
@@ -320,48 +371,42 @@ export function BackgroundCanvas({ paused, onTogglePause }: BackgroundCanvasProp
           ctx.lineTo(b.sx, b.sy);
           ctx.stroke();
         }
-        for (let gx = -gridSpan; gx <= gridSpan; gx += gridStep * 2) {
-          const a = project(gx, floorY, NEAR + 0.35, cx, cy, f, rot);
-          const b = project(gx, floorY, FAR, cx, cy, f, rot);
-          ctx.beginPath();
-          ctx.moveTo(a.sx, a.sy);
-          ctx.lineTo(b.sx, b.sy);
-          ctx.stroke();
-        }
       }
+
+      if (isDark) ctx.globalCompositeOperation = 'lighter';
 
       for (const d of shards) {
         if (!frozen) {
-          d.z -= d.speed * dt * (1 + scrollNorm * 0.45);
+          d.z -= d.speed * dt * (1 + scrollNorm * 0.4);
           d.x += d.vx * dt;
           d.y += d.vy * dt;
           d.spin += d.spinSpeed * dt;
           if (d.z < NEAR) spawnShard(d, false);
         }
-        drawShard(d, cx, cy, f, rot, accentRgb, lineRgb);
+        drawShard(d, cx, cy, f, rot, accentRgb, lineRgb, isDark);
       }
 
       for (const s of stars) {
         const prevZ = s.z;
         if (!frozen) {
-          s.z -= s.speed * dt * (1.15 + scrollNorm * 0.7);
+          s.z -= s.speed * dt * (1.25 + scrollNorm * 0.75);
           if (s.z < NEAR) spawnStar(s, false);
         }
         const depth = 1 - (s.z - NEAR) / (FAR - NEAR);
         const head = project(s.x, s.y, s.z, cx, cy, f, rot);
-        if (head.sx < -24 || head.sx > width + 24 || head.sy < -24 || head.sy > height + 24) continue;
+        if (head.sx < -28 || head.sx > width + 28 || head.sy < -28 || head.sy > height + 28) continue;
 
-        const alpha = 0.12 + depth * 0.7;
-        const size = s.size * (0.35 + depth * 1.55);
+        const alpha = (isDark ? 0.18 : 0.2) + depth * 0.72;
+        const size = s.size * (0.32 + depth * 1.7);
 
         if (!frozen && prevZ > s.z) {
-          const tailZ = Math.min(prevZ + 0.16 + depth * 0.22, FAR);
+          const tailZ = Math.min(prevZ + 0.2 + depth * 0.28, FAR);
           const tail = project(s.x, s.y, tailZ, cx, cy, f, rot);
           ctx.beginPath();
           ctx.moveTo(tail.sx, tail.sy);
           ctx.lineTo(head.sx, head.sy);
-          ctx.strokeStyle = `rgba(${accentRgb}, ${alpha * 0.5})`;
-          ctx.lineWidth = Math.max(0.6, size * 0.65);
+          ctx.strokeStyle = `rgba(${accentRgb}, ${alpha * 0.55})`;
+          ctx.lineWidth = Math.max(0.7, size * 0.7);
           ctx.stroke();
         }
 
@@ -370,12 +415,11 @@ export function BackgroundCanvas({ paused, onTogglePause }: BackgroundCanvasProp
         ctx.fillStyle = `rgba(${accentRgb}, ${alpha})`;
         ctx.fill();
       }
-      ctx.lineWidth = 1;
 
       for (const k of streaks) {
         if (!frozen) {
           k.z -= k.speed * dt;
-          k.life -= dt * 0.32;
+          k.life -= dt * 0.3;
           if (k.z < NEAR || k.life <= 0) spawnStreak(k);
         }
         const zTail = Math.min(k.z + k.length, FAR);
@@ -385,41 +429,36 @@ export function BackgroundCanvas({ paused, onTogglePause }: BackgroundCanvasProp
         const depth = 1 - (k.z - NEAR) / (FAR - NEAR);
         const grad = ctx.createLinearGradient(tail.sx, tail.sy, head.sx, head.sy);
         grad.addColorStop(0, `rgba(${accentRgb}, 0)`);
-        grad.addColorStop(1, `rgba(${accentRgb}, ${0.28 + depth * 0.42})`);
+        grad.addColorStop(1, `rgba(${accentRgb}, ${0.32 + depth * 0.5})`);
         ctx.beginPath();
         ctx.moveTo(tail.sx, tail.sy);
         ctx.lineTo(head.sx, head.sy);
         ctx.strokeStyle = grad;
-        ctx.lineWidth = 1.1 + depth * 1.8;
+        ctx.lineWidth = 1.2 + depth * 2.1;
         ctx.stroke();
       }
+
+      ctx.globalCompositeOperation = 'source-over';
       ctx.lineWidth = 1;
 
-      const glowR = Math.min(width, height) * 0.32;
+      const glowR = Math.min(width, height) * (isDark ? 0.38 : 0.3);
       const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
-      glow.addColorStop(0, `rgba(${accentRgb}, 0.12)`);
-      glow.addColorStop(0.45, `rgba(${accentRgb}, 0.04)`);
+      glow.addColorStop(0, `rgba(${accentRgb}, ${isDark ? 0.2 : 0.1})`);
+      glow.addColorStop(0.35, `rgba(${accentRgb}, ${isDark ? 0.07 : 0.04})`);
       glow.addColorStop(1, `rgba(${accentRgb}, 0)`);
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, width, height);
 
       const fade = ctx.createLinearGradient(0, 0, width, 0);
-      fade.addColorStop(0, `rgba(${bgRgb}, ${isMobile ? 0.42 : 0.62})`);
-      fade.addColorStop(isMobile ? 0.55 : 0.4, `rgba(${bgRgb}, ${isMobile ? 0.18 : 0.22})`);
+      fade.addColorStop(0, `rgba(${bgRgb}, ${isMobile ? 0.38 : 0.48})`);
+      fade.addColorStop(isMobile ? 0.5 : 0.32, `rgba(${bgRgb}, ${isMobile ? 0.14 : 0.14})`);
       fade.addColorStop(1, `rgba(${bgRgb}, 0)`);
       ctx.fillStyle = fade;
       ctx.fillRect(0, 0, width, height);
 
-      const vignette = ctx.createRadialGradient(
-        cx,
-        cy,
-        glowR * 0.5,
-        cx,
-        cy,
-        Math.max(width, height) * 0.92,
-      );
+      const vignette = ctx.createRadialGradient(cx, cy, glowR * 0.45, cx, cy, Math.max(width, height) * 0.95);
       vignette.addColorStop(0, `rgba(${bgRgb}, 0)`);
-      vignette.addColorStop(1, `rgba(${bgRgb}, 0.5)`);
+      vignette.addColorStop(1, `rgba(${bgRgb}, ${isDark ? 0.46 : 0.4})`);
       ctx.fillStyle = vignette;
       ctx.fillRect(0, 0, width, height);
 

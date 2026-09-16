@@ -24,6 +24,7 @@ export const hero = {
     'Mən Tural. Veb saytlar, AI dəstəkli layihələr və biznes proqramları hazırlayıram. Texnologiyanı işiniz üçün daha faydalı edirəm.',
   ctaPrimary: { label: 'Layihəni danışaq', href: '#elaqe' },
   ctaSecondary: { label: 'Xidmətlərə bax', href: '#xidmetler' },
+  availability: 'Layihələr üçün açığam',
 } as const;
 
 function whatsAppLink(message: string): string {

@@ -31,10 +31,15 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="hero__aside" aria-hidden="true">
-          <div className="hero__monogram-card">
-            <span className="hero__monogram-large">{site.monogram}</span>
-            <span className="hero__monogram-sub">{site.subtitle}</span>
+        <div className="hero__aside">
+          <div className="hero__status">
+            <span className="hero__status-dot" aria-hidden="true" />
+            <p className="hero__status-label">{hero.availability}</p>
+            <p className="hero__status-meta">
+              {site.subtitle}
+              <br />
+              {site.location}
+            </p>
           </div>
         </div>
       </div>

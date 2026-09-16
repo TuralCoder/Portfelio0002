@@ -8,7 +8,7 @@ export function About() {
         <div className="about__monogram" aria-hidden="true">
           {site.monogram}
         </div>
-        <div className="about__text">
+        <div className="about__panel">
           {about.paragraphs.map((p, i) => (
             <p key={i}>{p}</p>
           ))}

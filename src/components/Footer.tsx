@@ -6,8 +6,9 @@ export function Footer() {
     <footer className="footer">
       <div className="footer__inner">
         <p>
-          © {year} {site.name}. Bütün hüquqlar qorunur.
+          © {year} {site.name}
         </p>
+        <p>{site.location}</p>
       </div>
     </footer>
   );
